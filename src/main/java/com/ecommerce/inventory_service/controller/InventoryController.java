@@ -11,24 +11,21 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/inventory") // Igualamos el versionado v1
+@RequestMapping("/api/v1/inventory")
 @RequiredArgsConstructor
 public class InventoryController {
-
     private final InventoryService inventoryService;
 
-    // --- Endpoint Especial (Lógica de Negocio) ---
+
     @GetMapping("/{sku}")
     @ResponseStatus(HttpStatus.OK)
     public boolean isInStock(@PathVariable("sku") String sku, @RequestParam("quantity") Integer quantity) {
         return inventoryService.isInStock(sku, quantity);
     }
 
-    // --- Endpoints CRUD (Estilo ProductController) ---
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public InventoryResponse createInventory(@RequestBody @Valid InventoryRequest inventoryRequest) {
+    public InventoryResponse createInventory(@Valid @RequestBody InventoryRequest inventoryRequest) {
         return inventoryService.createInventory(inventoryRequest);
     }
 
@@ -40,9 +37,15 @@ public class InventoryController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public InventoryResponse updateInventory(@PathVariable Long id,
-                                             @RequestBody @Valid InventoryRequest inventoryRequest) {
+    public InventoryResponse updateInventory(@PathVariable Long id, @Valid @RequestBody InventoryRequest inventoryRequest) {
         return inventoryService.updateInventory(id, inventoryRequest);
+    }
+
+    @PutMapping("/reduce/{sku}")
+    @ResponseStatus(HttpStatus.OK)
+    public String reduceStock(@PathVariable String sku, @RequestParam Integer quantity) {
+        inventoryService.reduceStock(sku, quantity);
+        return "Stock reducido exitosamente";
     }
 
     @DeleteMapping("/{id}")
